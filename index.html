@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title id="page-title">Liste de naissance</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 24px; line-height: 1.45; }
+    h1 { margin: 0 0 8px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 16px; margin-top: 12px; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; background: #fff; }
+    @media (prefers-color-scheme: dark) {
+      .card { border-color: #333; background: #151515; }
+    }
+    .card h3 { margin: 0 0 8px; font-size: 1.05rem; }
+    .card p { margin: 0 0 12px; color: #333; }
+    .card .prix { font-weight: 600; color: #1f7ae0; }
+    @media (prefers-color-scheme: dark) {
+      .card p { color: #ccc; }
+      .card .prix { color: #5ba3ff; }
+    }
+    .btn { cursor: pointer; border: 0; padding: 10px 12px; border-radius: 10px; }
+    .btn-primary { background: #1f7ae0; color: #fff; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    form { display: grid; gap: 8px; margin-top: 12px; }
+    input, textarea { padding: 10px; border-radius: 8px; border: 1px solid #ccc; width: 100%; }
+    .notice { background: #f5f7fb; border: 1px solid #e4e8f3; padding: 12px; border-radius: 10px; margin: 16px 0; }
+    .hidden { display: none; }
+    footer { margin-top: 28px; color: #666; font-size: 0.9rem; }
+    .lang-selector { display: flex; gap: 8px; margin: 12px 0; }
+    .lang-btn { cursor: pointer; border: 1px solid #ddd; padding: 8px 16px; border-radius: 8px; background: #fff; font-size: 0.9rem; transition: all 0.2s; }
+    .lang-btn:hover { background: #f5f7fb; }
+    .lang-btn.active { background: #1f7ae0; color: #fff; border-color: #1f7ae0; }
+    @media (prefers-color-scheme: dark) {
+      .lang-btn { border-color: #333; background: #151515; color: #fff; }
+      .lang-btn:hover { background: #222; }
+      .lang-btn.active { background: #1f7ae0; border-color: #1f7ae0; }
+    }
+  </style>
+</head>
+<body>
+  <h1 data-i18n="title">Liste de naissance</h1>
+  
+  <div class="lang-selector">
+    <button class="lang-btn" data-lang="fr">🇫🇷 Français</button>
+    <button class="lang-btn" data-lang="fi">🇫🇮 Suomi</button>
+    <button class="lang-btn" data-lang="en">🇬🇧 English</button>
+  </div>
+
+  <p class="notice" data-i18n="notice">
+    Réservez un objet ci-dessous. Après réservation, l'objet <strong>n'apparaît plus</strong> pour les autres.
+    On vous demande seulement votre <em>prénom</em> et un <em>petit mot</em>.
+  </p>
+
+  <div id="grid" class="grid"></div>
+
+  <!-- Gabarit d'une carte d'objet -->
+  <template id="tpl-card">
+    <div class="card">
+      <h3 class="title"></h3>
+      <p class="prixp hidden"><span data-i18n="price">Prix</span> : <span class="prix"></span></p>
+      <p class="linkp hidden"><span data-i18n="link">Lien</span> : <a class="link" target="_blank" rel="noopener" data-i18n="view">Voir</a></p>
+      <button class="btn btn-primary btn-reserve" data-i18n="reserve">Réserver</button>
+
+      <form class="reserve-form hidden" autocomplete="off">
+        <input name="name" data-i18n-placeholder="name_placeholder" placeholder="Votre prénom" required />
+        <textarea name="message" data-i18n-placeholder="message_placeholder" placeholder="Petit mot (optionnel)" rows="3"></textarea>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button type="submit" class="btn btn-primary" data-i18n="confirm">Confirmer la réservation</button>
+          <button type="button" class="btn btn-cancel" data-i18n="cancel">Annuler</button>
+        </div>
+        <input type="hidden" name="item_id" />
+        <input type="hidden" name="item_label" />
+        <!-- champ anti-bot discret (honeypot) -->
+        <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off" />
+      </form>
+    </div>
+  </template>
+
+  <footer>
+    <p data-i18n="footer">Astuce : les liens donnés sont indicatifs — vous pouvez acheter ailleurs si vous préférez.</p>
+  </footer>
+
+  <script>
+    // REMPLACE par l'URL de ton déploiement Apps Script (qui finit par /exec)
+    const APP_URL = 'https://script.google.com/macros/s/AKfycbyLfFU8BfF9iL0NmAd-xPXZiZKjTn0rI_gUBA0KgEVH0QZOY1VjQulM0ZzMRy8U2MSc/exec'; // ⚠️ À REMPLACER par votre URL de déploiement
+
+    // ——— Système de traduction ———
+    const translations = {
+      fr: {
+        title: 'Liste de naissance',
+        notice: 'Réservez un objet ci-dessous. Après réservation, l\'objet <strong>n\'apparaît plus</strong> pour les autres. On vous demande seulement votre <em>prénom</em> et un <em>petit mot</em>.',
+        price: 'Prix',
+        link: 'Lien',
+        view: 'Voir',
+        reserve: 'Réserver',
+        name_placeholder: 'Votre prénom',
+        message_placeholder: 'Petit mot (optionnel)',
+        confirm: 'Confirmer la réservation',
+        cancel: 'Annuler',
+        footer: 'Astuce : les liens donnés sont indicatifs — vous pouvez acheter ailleurs si vous préférez.',
+        all_reserved: 'Tous les objets ont été réservés 🎉',
+        no_items: '⚠️ Aucun objet trouvé dans la feuille "List" du Google Sheet.',
+        error_load: '❌ Erreur de chargement. Vérifiez que l\'URL de déploiement est correcte.',
+        form_error: 'Erreur de formulaire.',
+        thanks: 'Merci ! Réservation confirmée.',
+        error_occurred: 'Désolé, une erreur est survenue. Réessayez dans un instant.'
+      },
+      fi: {
+        title: 'Vauvalahjalista',
+        notice: 'Varaa esine alta. Varauksen jälkeen esine <strong>ei näy enää</strong> muille. Kysymme vain <em>etunimesi</em> ja <em>pienen viestin</em>.',
+        price: 'Hinta',
+        link: 'Linkki',
+        view: 'Katso',
+        reserve: 'Varaa',
+        name_placeholder: 'Etunimesi',
+        message_placeholder: 'Pieni viesti (valinnainen)',
+        confirm: 'Vahvista varaus',
+        cancel: 'Peruuta',
+        footer: 'Vinkki: annetut linkit ovat ohjeellisia — voit ostaa muualtakin jos haluat.',
+        all_reserved: 'Kaikki esineet on varattu 🎉',
+        no_items: '⚠️ Ei esineitä Google Sheetin "List"-välilehdellä.',
+        error_load: '❌ Latausvirhe. Tarkista, että käyttöönoton URL on oikea.',
+        form_error: 'Lomakevirhe.',
+        thanks: 'Kiitos! Varaus vahvistettu.',
+        error_occurred: 'Anteeksi, tapahtui virhe. Yritä hetken kuluttua uudelleen.'
+      },
+      en: {
+        title: 'Baby Registry',
+        notice: 'Reserve an item below. After reservation, the item <strong>will no longer appear</strong> for others. We only ask for your <em>first name</em> and a <em>short message</em>.',
+        price: 'Price',
+        link: 'Link',
+        view: 'View',
+        reserve: 'Reserve',
+        name_placeholder: 'Your first name',
+        message_placeholder: 'Short message (optional)',
+        confirm: 'Confirm reservation',
+        cancel: 'Cancel',
+        footer: 'Tip: the links provided are indicative — you can buy elsewhere if you prefer.',
+        all_reserved: 'All items have been reserved 🎉',
+        no_items: '⚠️ No items found in the "List" sheet of the Google Sheet.',
+        error_load: '❌ Loading error. Check that the deployment URL is correct.',
+        form_error: 'Form error.',
+        thanks: 'Thank you! Reservation confirmed.',
+        error_occurred: 'Sorry, an error occurred. Please try again in a moment.'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lang') || detectLanguage();
+
+    function detectLanguage() {
+      const browserLang = navigator.language.toLowerCase();
+      if (browserLang.startsWith('fi')) return 'fi';
+      if (browserLang.startsWith('en')) return 'en';
+      return 'fr'; // défaut
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('lang', lang);
+      
+      // Mettre à jour l'attribut lang du HTML
+      document.documentElement.lang = lang;
+      
+      // Mettre à jour le titre de la page
+      document.getElementById('page-title').textContent = translations[lang].title;
+      
+      // Mettre à jour les boutons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+      
+      // Mettre à jour tous les textes
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (translations[lang][key]) {
+          el.innerHTML = translations[lang][key];
+        }
+      });
+      
+      // Mettre à jour les placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.dataset.i18nPlaceholder;
+        if (translations[lang][key]) {
+          el.placeholder = translations[lang][key];
+        }
+      });
+    }
+
+    // Fonction pour traduire un élément spécifique (utile pour les templates clonés)
+    function translateElement(element) {
+      element.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (translations[currentLang][key]) {
+          el.innerHTML = translations[currentLang][key];
+        }
+      });
+      
+      element.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.dataset.i18nPlaceholder;
+        if (translations[currentLang][key]) {
+          el.placeholder = translations[currentLang][key];
+        }
+      });
+    }
+
+    // Initialiser la langue au chargement
+    document.addEventListener('DOMContentLoaded', () => {
+      setLanguage(currentLang);
+      
+      // Ajouter les écouteurs sur les boutons de langue
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          setLanguage(btn.dataset.lang);
+          // Recharger les données avec la nouvelle langue
+          loadAndRenderItems();
+        });
+      });
+    });
+
+    // ——— Fonctions utilitaires ———
+    async function fetchData() {
+      // GET simple (pas de headers personnalisés) → évite les soucis CORS
+      const r = await fetch(APP_URL, { method: 'GET' });
+      if (!r.ok) throw new Error('GET data failed');
+      const json = await r.json();
+      return {
+        items: json.items || [],
+        reservedIds: new Set(json.reserved_ids || [])
+      };
+    }
+
+    function renderItems(items, reservedSet) {
+      const grid = document.getElementById('grid');
+      const tpl = document.getElementById('tpl-card');
+      grid.innerHTML = '';
+
+      const visible = items.filter(it => !reservedSet.has(it.id));
+      visible.forEach(item => {
+        const node = tpl.content.cloneNode(true);
+        const card = node.querySelector('.card');
+        const title = node.querySelector('.title');
+        const prixp = node.querySelector('.prixp');
+        const prix = node.querySelector('.prix');
+        const linkp = node.querySelector('.linkp');
+        const link = node.querySelector('.link');
+        const btn = node.querySelector('.btn-reserve');
+        const form = node.querySelector('.reserve-form');
+        const cancel = node.querySelector('.btn-cancel');
+
+        // Traduire les éléments du template cloné
+        translateElement(card);
+
+        title.textContent = item.label;
+        
+        if (item.prix) {
+          prix.textContent = item.prix;
+          prixp.classList.remove('hidden');
+        }
+        
+        if (item.url) {
+          link.href = item.url;
+          linkp.classList.remove('hidden');
+        }
+
+        form.item_id.value = item.id;
+        form.item_label.value = item.label;
+
+        btn.addEventListener('click', () => {
+          btn.classList.add('hidden');
+          form.classList.remove('hidden');
+        });
+
+        cancel.addEventListener('click', () => {
+          form.reset();
+          form.classList.add('hidden');
+          btn.classList.remove('hidden');
+        });
+
+        form.addEventListener('submit', async (ev) => {
+          ev.preventDefault();
+
+          // Honeypot anti-bot (si rempli → on ignore)
+          if (form.website && form.website.value) {
+            alert(translations[currentLang].form_error);
+            return;
+          }
+
+          const data = Object.fromEntries(new FormData(form).entries());
+
+          // IMPORTANT : on envoie en x-www-form-urlencoded
+          const formData = new URLSearchParams();
+          formData.append('item_id', data.item_id);
+          formData.append('item_label', data.item_label);
+          formData.append('name', data.name);
+          formData.append('message', data.message || '');
+
+          // On évite tout header custom → pas de pré-vol CORS
+          try {
+            const r = await fetch(APP_URL, { method: 'POST', body: formData });
+            const json = await r.json();
+            if (!json.ok) throw new Error(json.error || 'Erreur');
+            card.remove(); // masque l'objet tout de suite
+            alert(translations[currentLang].thanks);
+          } catch (e) {
+            console.error(e);
+            alert(translations[currentLang].error_occurred);
+          }
+        });
+
+        grid.appendChild(node);
+      });
+
+      if (visible.length === 0) {
+        document.getElementById('grid').innerHTML = `<p>${translations[currentLang].all_reserved}</p>`;
+      }
+    }
+
+    async function loadAndRenderItems() {
+      try {
+        const { items, reservedIds } = await fetchData();
+        if (items.length === 0) {
+          document.getElementById('grid').innerHTML = `<p>${translations[currentLang].no_items}</p>`;
+          return;
+        }
+        renderItems(items, reservedIds);
+      } catch (e) {
+        console.error('Impossible de charger les données', e);
+        document.getElementById('grid').innerHTML = `<p>${translations[currentLang].error_load}</p>`;
+      }
+    }
+
+    // ——— Initialisation ———
+    (async () => {
+      await loadAndRenderItems();
+    })();
+  </script>
+</body>
+</html>
