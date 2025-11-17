@@ -99,11 +99,29 @@
       background: linear-gradient(135deg, var(--baby-pink) 0%, var(--baby-blue) 100%);
       color: #fff;
     }
-    .btn-primary:hover { 
+    .btn-primary:hover:not(:disabled) { 
       transform: scale(1.02);
       box-shadow: 0 4px 12px rgba(137, 207, 240, 0.4);
     }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn:disabled { 
+      opacity: 0.6; 
+      cursor: not-allowed;
+      position: relative;
+    }
+    .btn:disabled::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      margin-left: 10px;
+      border: 2px solid #fff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spinner 0.8s linear infinite;
+    }
+    @keyframes spinner {
+      to { transform: rotate(360deg); }
+    }
     .btn-cancel {
       background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
       color: #555;
@@ -552,6 +570,7 @@
         option_direct: '📦 Je commande directement',
         message_placeholder: 'Petit mot (optionnel)',
         confirm: 'Confirmer la réservation',
+        sending: 'Envoi en cours...',
         cancel: 'Annuler',
         footer: 'Astuce : les liens donnés sont indicatifs — vous pouvez acheter ailleurs si vous préférez.',
         all_reserved: 'Tous les objets ont été réservés 🎉',
@@ -589,6 +608,7 @@
         option_direct: '📦 Tilaan suoraan',
         message_placeholder: 'Pieni viesti (valinnainen)',
         confirm: 'Vahvista varaus',
+        sending: 'Lähetetään...',
         cancel: 'Peruuta',
         footer: 'Vinkki: annetut linkit ovat ohjeellisia — voit ostaa muualtakin jos haluat.',
         all_reserved: 'Kaikki esineet on varattu 🎉',
@@ -626,6 +646,7 @@
         option_direct: '📦 I order directly',
         message_placeholder: 'Short message (optional)',
         confirm: 'Confirm reservation',
+        sending: 'Sending...',
         cancel: 'Cancel',
         footer: 'Tip: the links provided are indicative — you can buy elsewhere if you prefer.',
         all_reserved: 'All items have been reserved 🎉',
@@ -788,6 +809,14 @@
             return;
           }
 
+          // Récupérer le bouton de soumission
+          const submitBtn = form.querySelector('button[type="submit"]');
+          const originalText = submitBtn.textContent;
+          
+          // Désactiver le bouton et afficher le loading
+          submitBtn.disabled = true;
+          submitBtn.textContent = translations[currentLang].sending;
+
           const data = Object.fromEntries(new FormData(form).entries());
 
           // IMPORTANT : on envoie en x-www-form-urlencoded
@@ -810,6 +839,10 @@
           } catch (e) {
             console.error(e);
             alert(translations[currentLang].error_occurred);
+            
+            // Réactiver le bouton en cas d'erreur
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
           }
         });
 
