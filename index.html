@@ -703,7 +703,8 @@
         error_load: '❌ Erreur de chargement. Vérifiez que l\'URL de déploiement est correcte.',
         form_error: 'Erreur de formulaire.',
         thanks: 'Merci ! Réservation confirmée.',
-        error_occurred: 'Désolé, une erreur est survenue. Réessayez dans un instant.'
+        error_occurred: 'Désolé, une erreur est survenue. Réessayez dans un instant.',
+        already_reserved: 'Désolé, cet objet vient d\'être réservé par quelqu\'un d\'autre ! 😔\n\nVeuillez en choisir un autre.'
       },
       fi: {
         title: 'Vauvalahjalista',
@@ -750,7 +751,8 @@
         error_load: '❌ Latausvirhe. Tarkista, että käyttöönoton URL on oikea.',
         form_error: 'Lomakevirhe.',
         thanks: 'Kiitos! Varaus vahvistettu.',
-        error_occurred: 'Anteeksi, tapahtui virhe. Yritä hetken kuluttua uudelleen.'
+        error_occurred: 'Anteeksi, tapahtui virhe. Yritä hetken kuluttua uudelleen.',
+        already_reserved: 'Anteeksi, joku muu varasi juuri tämän esineen! 😔\n\nValitse toinen esine.'
       },
       en: {
         title: 'Baby Registry',
@@ -797,7 +799,8 @@
         error_load: '❌ Loading error. Check that the deployment URL is correct.',
         form_error: 'Form error.',
         thanks: 'Thank you! Reservation confirmed.',
-        error_occurred: 'Sorry, an error occurred. Please try again in a moment.'
+        error_occurred: 'Sorry, an error occurred. Please try again in a moment.',
+        already_reserved: 'Sorry, someone else just reserved this item! 😔\n\nPlease choose another one.'
       }
     };
 
@@ -1025,7 +1028,17 @@
           try {
             const r = await fetch(APP_URL, { method: 'POST', body: formData });
             const json = await r.json();
-            if (!json.ok) throw new Error(json.error || 'Erreur');
+            
+            if (!json.ok) {
+              // Gérer l'erreur "objet déjà réservé" spécifiquement
+              if (json.error === 'already_reserved') {
+                card.remove(); // Masquer l'objet car il est réservé
+                alert(translations[currentLang].already_reserved);
+                return;
+              }
+              throw new Error(json.error || 'Erreur');
+            }
+            
             card.remove(); // masque l'objet tout de suite
             showConfirmationModal(data.item_label, data.name, data.email, data.payment_option);
           } catch (e) {

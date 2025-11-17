@@ -129,8 +129,26 @@ function doPost(e) {
       return _jsonResponse({ ok: false, error: 'item_id, name et email requis' }, 400);
     }
 
-    // écriture
+    // Vérifier si l'objet n'est pas déjà réservé (protection contre les doublons)
     const sheet = _reservationsSheet();
+    const existingData = sheet.getDataRange().getValues();
+    if (existingData.length > 1) { // Plus que juste l'en-tête
+      const headerRow = existingData[0];
+      const itemIdColIndex = headerRow.indexOf('item_id');
+      
+      // Chercher si cet item_id existe déjà
+      for (let i = 1; i < existingData.length; i++) {
+        if (existingData[i][itemIdColIndex] === item_id) {
+          return _jsonResponse({ 
+            ok: false, 
+            error: 'already_reserved',
+            item_label: item_label || item_id
+          }, 409);
+        }
+      }
+    }
+
+    // Si pas réservé, enregistrer la réservation
     sheet.appendRow([
       new Date(),
       item_id,
