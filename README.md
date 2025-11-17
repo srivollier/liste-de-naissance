@@ -102,6 +102,8 @@ Votre Google Sheet doit avoir 2 feuilles :
 - ✅ **Email récapitulatif automatique** envoyé à la personne qui réserve
 - ✅ **Instructions de paiement/livraison** intégrées
 - ✅ **Choix de l'option de paiement** dans le formulaire (virement ou commande directe)
+- ✅ **Protection anti-doublon** : vérifie que l'objet n'est pas déjà réservé
+- ✅ **Modal de confirmation** avec récapitulatif de la réservation
 - ✅ **Design responsive** avec dark mode automatique
 - ✅ **Sans CORS** : utilise des requêtes simples
 
