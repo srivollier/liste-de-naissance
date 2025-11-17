@@ -13,3 +13,6 @@ Thumbs.db
 *.tmp
 *.log
 
+# Fichier backend (ne pas pousser sur GitHub - contient SHEET_ID et email)
+Code.gs
+

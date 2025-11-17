@@ -4,98 +4,552 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title id="page-title">Liste de naissance</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👶</text></svg>" />
   <style>
-    :root { color-scheme: light dark; }
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 24px; line-height: 1.45; }
-    h1 { margin: 0 0 8px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 16px; margin-top: 12px; }
-    .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; background: #fff; }
-    @media (prefers-color-scheme: dark) {
-      .card { border-color: #333; background: #151515; }
+    :root { 
+      color-scheme: light dark;
+      --baby-pink: #ff9ec7;
+      --baby-blue: #89cff0;
+      --baby-yellow: #ffd166;
+      --baby-mint: #98d8c8;
+      --baby-lavender: #c7b3e5;
+      --baby-peach: #ffb5a7;
     }
-    .card h3 { margin: 0 0 8px; font-size: 1.05rem; }
-    .card p { margin: 0 0 12px; color: #333; }
-    .card .prix { font-weight: 600; color: #1f7ae0; }
+    body { 
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; 
+      margin: 0;
+      padding: 24px; 
+      line-height: 1.45;
+      background: linear-gradient(135deg, #fff5f8 0%, #f0f9ff 100%);
+      min-height: 100vh;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: linear-gradient(135deg, #1a1625 0%, #1e2235 100%); }
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 { 
+      margin: 0 0 12px; 
+      background: linear-gradient(135deg, var(--baby-pink) 0%, var(--baby-blue) 50%, var(--baby-lavender) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 16px; margin-top: 16px; }
+    .card { 
+      border: 3px solid;
+      border-radius: 16px; 
+      padding: 18px; 
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:nth-child(6n+1) { border-color: var(--baby-pink); }
+    .card:nth-child(6n+2) { border-color: var(--baby-blue); }
+    .card:nth-child(6n+3) { border-color: var(--baby-yellow); }
+    .card:nth-child(6n+4) { border-color: var(--baby-mint); }
+    .card:nth-child(6n+5) { border-color: var(--baby-lavender); }
+    .card:nth-child(6n+6) { border-color: var(--baby-peach); }
+    .card:hover { 
+      transform: translateY(-4px); 
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+    @media (prefers-color-scheme: dark) {
+      .card { 
+        background: #242838; 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      }
+      .card:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+    }
+    .card h3 { margin: 0 0 10px; font-size: 1.1rem; color: #2a2a2a; }
+    @media (prefers-color-scheme: dark) {
+      .card h3 { color: #f0f0f0; }
+    }
+    .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 12px; }
+    .card p { margin: 0 0 12px; color: #555; }
+    .card .prix { font-weight: 700; font-size: 1.1rem; }
+    .card:nth-child(6n+1) .prix { color: #e91e8c; }
+    .card:nth-child(6n+2) .prix { color: #4aa3d9; }
+    .card:nth-child(6n+3) .prix { color: #f39c12; }
+    .card:nth-child(6n+4) .prix { color: #27ae60; }
+    .card:nth-child(6n+5) .prix { color: #9b59b6; }
+    .card:nth-child(6n+6) .prix { color: #e74c3c; }
     @media (prefers-color-scheme: dark) {
       .card p { color: #ccc; }
-      .card .prix { color: #5ba3ff; }
+      .card:nth-child(6n+1) .prix { color: var(--baby-pink); }
+      .card:nth-child(6n+2) .prix { color: var(--baby-blue); }
+      .card:nth-child(6n+3) .prix { color: var(--baby-yellow); }
+      .card:nth-child(6n+4) .prix { color: var(--baby-mint); }
+      .card:nth-child(6n+5) .prix { color: var(--baby-lavender); }
+      .card:nth-child(6n+6) .prix { color: var(--baby-peach); }
     }
-    .btn { cursor: pointer; border: 0; padding: 10px 12px; border-radius: 10px; }
-    .btn-primary { background: #1f7ae0; color: #fff; }
+    .btn { 
+      cursor: pointer; 
+      border: 0; 
+      padding: 12px 16px; 
+      border-radius: 12px; 
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-primary { 
+      background: linear-gradient(135deg, var(--baby-pink) 0%, var(--baby-blue) 100%);
+      color: #fff;
+    }
+    .btn-primary:hover { 
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(137, 207, 240, 0.4);
+    }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    form { display: grid; gap: 8px; margin-top: 12px; }
-    input, textarea { padding: 10px; border-radius: 8px; border: 1px solid #ccc; width: 100%; }
-    .notice { background: #f5f7fb; border: 1px solid #e4e8f3; padding: 12px; border-radius: 10px; margin: 16px 0; }
-    .hidden { display: none; }
-    footer { margin-top: 28px; color: #666; font-size: 0.9rem; }
-    .lang-selector { display: flex; gap: 8px; margin: 12px 0; }
-    .lang-btn { cursor: pointer; border: 1px solid #ddd; padding: 8px 16px; border-radius: 8px; background: #fff; font-size: 0.9rem; transition: all 0.2s; }
-    .lang-btn:hover { background: #f5f7fb; }
-    .lang-btn.active { background: #1f7ae0; color: #fff; border-color: #1f7ae0; }
+    .btn-cancel {
+      background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+      color: #555;
+    }
+    .btn-cancel:hover {
+      background: linear-gradient(135deg, #d0d0d0 0%, #e5e5e5 100%);
+    }
+    form { display: grid; gap: 10px; margin-top: 12px; }
+    input, textarea { 
+      padding: 12px; 
+      border-radius: 10px; 
+      border: 2px solid #ddd; 
+      width: 100%;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--baby-blue);
+      box-shadow: 0 0 0 3px rgba(137, 207, 240, 0.2);
+    }
+    .notice { 
+      background: linear-gradient(135deg, #fff0f6 0%, #e6f7ff 100%);
+      border: 2px solid var(--baby-pink);
+      border-left: 6px solid var(--baby-blue);
+      padding: 16px; 
+      border-radius: 12px; 
+      margin: 16px 0; 
+      color: #2a2a2a;
+      font-size: 0.95rem;
+    }
     @media (prefers-color-scheme: dark) {
-      .lang-btn { border-color: #333; background: #151515; color: #fff; }
-      .lang-btn:hover { background: #222; }
-      .lang-btn.active { background: #1f7ae0; border-color: #1f7ae0; }
+      .notice { 
+        background: linear-gradient(135deg, #2a1f2e 0%, #1f2a3a 100%);
+        border-color: var(--baby-lavender);
+        border-left-color: var(--baby-blue);
+        color: #e0e0e0; 
+      }
+    }
+    .hidden { display: none; }
+    .instructions {
+      margin: 24px 0;
+    }
+    .instructions h2 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #2a2a2a;
+    }
+    @media (prefers-color-scheme: dark) {
+      .instructions h2 { color: #f0f0f0; }
+    }
+    .option-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 16px;
+    }
+    .option-card {
+      background: #fff;
+      border: 3px solid;
+      border-radius: 16px;
+      padding: 24px;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: transform 0.2s;
+    }
+    .option-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+    .option-card:nth-child(1) {
+      border-color: var(--baby-mint);
+    }
+    .option-card:nth-child(2) {
+      border-color: var(--baby-peach);
+    }
+    @media (prefers-color-scheme: dark) {
+      .option-card {
+        background: #242838;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      }
+      .option-card:hover {
+        box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      }
+    }
+    .option-number {
+      position: absolute;
+      top: -12px;
+      right: 20px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .option-card:nth-child(1) .option-number {
+      background: var(--baby-mint);
+    }
+    .option-card:nth-child(2) .option-number {
+      background: var(--baby-peach);
+    }
+    .option-card h3 {
+      margin: 0 0 12px;
+      font-size: 1.2rem;
+      color: #2a2a2a;
+    }
+    @media (prefers-color-scheme: dark) {
+      .option-card h3 { color: #f0f0f0; }
+    }
+    .option-card > p {
+      color: #666;
+      margin-bottom: 16px;
+    }
+    @media (prefers-color-scheme: dark) {
+      .option-card > p { color: #aaa; }
+    }
+    .option-details {
+      margin-top: 16px;
+    }
+    .option-details strong {
+      color: #2a2a2a;
+    }
+    @media (prefers-color-scheme: dark) {
+      .option-details strong { color: #e0e0e0; }
+    }
+    .info-box {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-left: 4px solid var(--baby-blue);
+      padding: 16px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+    @media (prefers-color-scheme: dark) {
+      .info-box {
+        background: linear-gradient(135deg, #1a1f2e 0%, #242938 100%);
+      }
+    }
+    .info-box p {
+      margin: 8px 0;
+      font-size: 0.95rem;
+      color: #2a2a2a;
+    }
+    @media (prefers-color-scheme: dark) {
+      .info-box p { color: #e0e0e0; }
+    }
+    .info-box .editable {
+      background: #fff3cd;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-weight: 600;
+    }
+    @media (prefers-color-scheme: dark) {
+      .info-box .editable {
+        background: #4a4020;
+        color: #ffd166;
+      }
+    }
+    .note {
+      font-size: 0.9rem;
+      font-style: italic;
+      color: #666;
+      margin-top: 12px;
+    }
+    @media (prefers-color-scheme: dark) {
+      .note { color: #999; }
+    }
+    .payment-choice {
+      margin: 8px 0;
+    }
+    .choice-label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #2a2a2a;
+      font-size: 0.95rem;
+    }
+    @media (prefers-color-scheme: dark) {
+      .choice-label { color: #e0e0e0; }
+    }
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .radio-option {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fff;
+    }
+    .radio-option:hover {
+      border-color: var(--baby-blue);
+      background: #f8f9fa;
+    }
+    .radio-option input[type="radio"] {
+      width: auto;
+      margin-right: 10px;
+      cursor: pointer;
+      accent-color: var(--baby-blue);
+    }
+    .radio-option input[type="radio"]:checked + span {
+      font-weight: 600;
+    }
+    .radio-option:has(input[type="radio"]:checked) {
+      border-color: var(--baby-blue);
+      background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+    }
+    @media (prefers-color-scheme: dark) {
+      .radio-option {
+        background: #242838;
+        border-color: #333;
+      }
+      .radio-option:hover {
+        border-color: var(--baby-blue);
+        background: #2a3040;
+      }
+      .radio-option:has(input[type="radio"]:checked) {
+        background: linear-gradient(135deg, #1a2a3a 0%, #1e2e3e 100%);
+      }
+    }
+    footer { 
+      margin-top: 32px; 
+      padding: 16px;
+      background: linear-gradient(135deg, var(--baby-mint) 0%, var(--baby-yellow) 100%);
+      border-radius: 12px;
+      color: #2a2a2a;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    @media (prefers-color-scheme: dark) {
+      footer { color: #1a1a1a; }
+    }
+    .lang-selector { display: flex; gap: 10px; margin: 12px 0; flex-wrap: wrap; }
+    .lang-btn { 
+      cursor: pointer; 
+      border: 2px solid;
+      padding: 10px 18px; 
+      border-radius: 12px; 
+      background: #fff; 
+      font-size: 0.95rem; 
+      font-weight: 600;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .flag-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 22px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #fff;
+    }
+    .lang-btn:nth-child(1) { border-color: var(--baby-pink); }
+    .lang-btn:nth-child(1) .flag-icon { background: #ed2939; box-shadow: inset 0 0 0 2px #002395; }
+    .lang-btn:nth-child(2) { border-color: var(--baby-blue); }
+    .lang-btn:nth-child(2) .flag-icon { background: #003580; }
+    .lang-btn:nth-child(3) { border-color: var(--baby-lavender); }
+    .lang-btn:nth-child(3) .flag-icon { background: #012169; }
+    .lang-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    .lang-btn:nth-child(1).active { background: var(--baby-pink); color: #fff; }
+    .lang-btn:nth-child(2).active { background: var(--baby-blue); color: #fff; }
+    .lang-btn:nth-child(3).active { background: var(--baby-lavender); color: #fff; }
+    @media (prefers-color-scheme: dark) {
+      .lang-btn { background: #242838; color: #fff; }
+      .lang-btn:nth-child(1).active { background: var(--baby-pink); }
+      .lang-btn:nth-child(2).active { background: var(--baby-blue); }
+      .lang-btn:nth-child(3).active { background: var(--baby-lavender); }
     }
   </style>
 </head>
 <body>
-  <h1 data-i18n="title">Liste de naissance</h1>
-  
-  <div class="lang-selector">
-    <button class="lang-btn" data-lang="fr">🇫🇷 Français</button>
-    <button class="lang-btn" data-lang="fi">🇫🇮 Suomi</button>
-    <button class="lang-btn" data-lang="en">🇬🇧 English</button>
-  </div>
-
-  <p class="notice" data-i18n="notice">
-    Réservez un objet ci-dessous. Après réservation, l'objet <strong>n'apparaît plus</strong> pour les autres.
-    On vous demande seulement votre <em>prénom</em> et un <em>petit mot</em>.
-  </p>
-
-  <div id="grid" class="grid"></div>
-
-  <!-- Gabarit d'une carte d'objet -->
-  <template id="tpl-card">
-    <div class="card">
-      <h3 class="title"></h3>
-      <p class="prixp hidden"><span data-i18n="price">Prix</span> : <span class="prix"></span></p>
-      <p class="linkp hidden"><span data-i18n="link">Lien</span> : <a class="link" target="_blank" rel="noopener" data-i18n="view">Voir</a></p>
-      <button class="btn btn-primary btn-reserve" data-i18n="reserve">Réserver</button>
-
-      <form class="reserve-form hidden" autocomplete="off">
-        <input name="name" data-i18n-placeholder="name_placeholder" placeholder="Votre prénom" required />
-        <textarea name="message" data-i18n-placeholder="message_placeholder" placeholder="Petit mot (optionnel)" rows="3"></textarea>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button type="submit" class="btn btn-primary" data-i18n="confirm">Confirmer la réservation</button>
-          <button type="button" class="btn btn-cancel" data-i18n="cancel">Annuler</button>
-        </div>
-        <input type="hidden" name="item_id" />
-        <input type="hidden" name="item_label" />
-        <!-- champ anti-bot discret (honeypot) -->
-        <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off" />
-      </form>
+  <div class="container">
+    <h1 data-i18n="title">Liste de naissance</h1>
+    
+    <div class="lang-selector">
+      <button class="lang-btn" data-lang="fr"><span class="flag-icon">FR</span> Français</button>
+      <button class="lang-btn" data-lang="fi"><span class="flag-icon">FI</span> Suomi</button>
+      <button class="lang-btn" data-lang="en"><span class="flag-icon">EN</span> English</button>
     </div>
-  </template>
 
-  <footer>
-    <p data-i18n="footer">Astuce : les liens donnés sont indicatifs — vous pouvez acheter ailleurs si vous préférez.</p>
-  </footer>
+    <p class="notice" data-i18n="notice">
+      Réservez un objet ci-dessous. Après réservation, l'objet <strong>n'apparaît plus</strong> pour les autres.
+      On vous demande seulement votre <em>prénom</em> et un <em>petit mot</em>.
+    </p>
+
+    <div class="instructions">
+      <h2 data-i18n="instructions_title">💝 Comment procéder après votre réservation ?</h2>
+      
+      <div class="option-cards">
+        <div class="option-card">
+          <div class="option-number">1</div>
+          <h3 data-i18n="option1_title">🏦 Je commande pour vous</h3>
+          <p data-i18n="option1_desc">Transférez-moi l'argent et je m'occupe de tout !</p>
+          <div class="option-details">
+            <p><strong data-i18n="bank_info">Coordonnées bancaires :</strong></p>
+            <div class="info-box">
+              <p><strong>IBAN :</strong> <span class="editable">FR00 0000 0000 0000 0000 0000 000</span></p>
+              <p><strong data-i18n="account_name">Titulaire :</strong> <span class="editable">Votre Nom</span></p>
+            </div>
+            <p class="note" data-i18n="option1_note">💡 Indiquez le nom de l'objet dans le libellé du virement</p>
+          </div>
+        </div>
+
+        <div class="option-card">
+          <div class="option-number">2</div>
+          <h3 data-i18n="option2_title">📦 Vous commandez directement</h3>
+          <p data-i18n="option2_desc">Commandez sur le site et faites livrer ici :</p>
+          <div class="option-details">
+            <p><strong data-i18n="delivery_info">Adresse de livraison :</strong></p>
+            <div class="info-box">
+              <p><strong data-i18n="name">Nom :</strong> <span class="editable">Prénom NOM</span></p>
+              <p><strong data-i18n="address">Adresse :</strong> <span class="editable">123 Rue Exemple</span></p>
+              <p><strong data-i18n="city">Ville :</strong> <span class="editable">75000 Paris</span></p>
+              <p><strong data-i18n="phone">Téléphone :</strong> <span class="editable">06 12 34 56 78</span></p>
+            </div>
+            <p class="note" data-i18n="option2_note">💡 Utilisez le lien fourni sur chaque objet</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="grid" class="grid"></div>
+
+    <!-- Gabarit d'une carte d'objet -->
+    <template id="tpl-card">
+      <div class="card">
+        <img class="item-image hidden" alt="" />
+        <h3 class="title"></h3>
+        <p class="prixp hidden"><span data-i18n="price">Prix</span> : <span class="prix"></span></p>
+        <p class="linkp hidden"><span data-i18n="link">Lien</span> : <a class="link" target="_blank" rel="noopener" data-i18n="view">Voir</a></p>
+        <button class="btn btn-primary btn-reserve" data-i18n="reserve">Réserver</button>
+
+        <form class="reserve-form hidden">
+          <input name="name" type="text" autocomplete="given-name" data-i18n-placeholder="name_placeholder" placeholder="Votre prénom" required />
+          <input name="email" type="email" autocomplete="email" data-i18n-placeholder="email_placeholder" placeholder="Votre email" required />
+          
+          <div class="payment-choice">
+            <label class="choice-label" data-i18n="payment_method">Comment allez-vous procéder ?</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="payment_option" value="virement" required />
+                <span data-i18n="option_bank">🏦 Vous me transférez l'argent</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="payment_option" value="direct" required />
+                <span data-i18n="option_direct">📦 Je commande directement</span>
+              </label>
+            </div>
+          </div>
+          
+          <textarea name="message" autocomplete="off" data-i18n-placeholder="message_placeholder" placeholder="Petit mot (optionnel)" rows="3"></textarea>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="submit" class="btn btn-primary" data-i18n="confirm">Confirmer la réservation</button>
+            <button type="button" class="btn btn-cancel" data-i18n="cancel">Annuler</button>
+          </div>
+          <input type="hidden" name="item_id" />
+          <input type="hidden" name="item_label" />
+          <input type="hidden" name="lang" class="user-lang" />
+          <!-- champ anti-bot discret (honeypot) -->
+          <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off" />
+        </form>
+      </div>
+    </template>
+
+    <footer>
+      <p data-i18n="footer">Astuce : les liens donnés sont indicatifs — vous pouvez acheter ailleurs si vous préférez.</p>
+    </footer>
+  </div>
 
   <script>
     // REMPLACE par l'URL de ton déploiement Apps Script (qui finit par /exec)
     const APP_URL = 'https://script.google.com/macros/s/AKfycbyLfFU8BfF9iL0NmAd-xPXZiZKjTn0rI_gUBA0KgEVH0QZOY1VjQulM0ZzMRy8U2MSc/exec'; // ⚠️ À REMPLACER par votre URL de déploiement
+
+    // ——— Détection mobile pour drapeaux ———
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    
+    if (isMobile) {
+      // Sur mobile, remplacer les badges par des emojis de drapeaux
+      document.addEventListener('DOMContentLoaded', () => {
+        const flags = {
+          'fr': '🇫🇷',
+          'fi': '🇫🇮',
+          'en': '🇬🇧'
+        };
+        
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          const lang = btn.dataset.lang;
+          const flagIcon = btn.querySelector('.flag-icon');
+          if (flagIcon && flags[lang]) {
+            flagIcon.textContent = flags[lang];
+            flagIcon.style.width = 'auto';
+            flagIcon.style.background = 'none';
+            flagIcon.style.boxShadow = 'none';
+            flagIcon.style.fontSize = '1.3rem';
+          }
+        });
+      });
+    }
 
     // ——— Système de traduction ———
     const translations = {
       fr: {
         title: 'Liste de naissance',
         notice: 'Réservez un objet ci-dessous. Après réservation, l\'objet <strong>n\'apparaît plus</strong> pour les autres. On vous demande seulement votre <em>prénom</em> et un <em>petit mot</em>.',
+        instructions_title: '💝 Comment procéder après votre réservation ?',
+        option1_title: '🏦 Je commande pour vous',
+        option1_desc: 'Transférez-moi l\'argent et je m\'occupe de tout !',
+        bank_info: 'Coordonnées bancaires :',
+        account_name: 'Titulaire :',
+        option1_note: '💡 Indiquez le nom de l\'objet dans le libellé du virement',
+        option2_title: '📦 Vous commandez directement',
+        option2_desc: 'Commandez sur le site et faites livrer ici :',
+        delivery_info: 'Adresse de livraison :',
+        name: 'Nom :',
+        address: 'Adresse :',
+        city: 'Ville :',
+        phone: 'Téléphone :',
+        option2_note: '💡 Utilisez le lien fourni sur chaque objet',
         price: 'Prix',
         link: 'Lien',
         view: 'Voir',
         reserve: 'Réserver',
         name_placeholder: 'Votre prénom',
+        email_placeholder: 'Votre email',
+        payment_method: 'Comment allez-vous procéder ?',
+        option_bank: '🏦 Vous me transférez l\'argent',
+        option_direct: '📦 Je commande directement',
         message_placeholder: 'Petit mot (optionnel)',
         confirm: 'Confirmer la réservation',
         cancel: 'Annuler',
@@ -110,11 +564,29 @@
       fi: {
         title: 'Vauvalahjalista',
         notice: 'Varaa esine alta. Varauksen jälkeen esine <strong>ei näy enää</strong> muille. Kysymme vain <em>etunimesi</em> ja <em>pienen viestin</em>.',
+        instructions_title: '💝 Miten edetä varauksen jälkeen?',
+        option1_title: '🏦 Tilaan puolestasi',
+        option1_desc: 'Lähetä minulle rahat niin hoidan kaiken!',
+        bank_info: 'Pankkitiedot:',
+        account_name: 'Tilinomistaja:',
+        option1_note: '💡 Merkitse esineen nimi viestikenttään',
+        option2_title: '📦 Tilaat suoraan',
+        option2_desc: 'Tilaa sivustolta ja toimita tänne:',
+        delivery_info: 'Toimitusosoite:',
+        name: 'Nimi:',
+        address: 'Osoite:',
+        city: 'Kaupunki:',
+        phone: 'Puhelin:',
+        option2_note: '💡 Käytä jokaisessa esineessä annettua linkkiä',
         price: 'Hinta',
         link: 'Linkki',
         view: 'Katso',
         reserve: 'Varaa',
         name_placeholder: 'Etunimesi',
+        email_placeholder: 'Sähköpostisi',
+        payment_method: 'Miten aiot edetä?',
+        option_bank: '🏦 Lähetät minulle rahat',
+        option_direct: '📦 Tilaan suoraan',
         message_placeholder: 'Pieni viesti (valinnainen)',
         confirm: 'Vahvista varaus',
         cancel: 'Peruuta',
@@ -129,11 +601,29 @@
       en: {
         title: 'Baby Registry',
         notice: 'Reserve an item below. After reservation, the item <strong>will no longer appear</strong> for others. We only ask for your <em>first name</em> and a <em>short message</em>.',
+        instructions_title: '💝 How to proceed after your reservation?',
+        option1_title: '🏦 I order for you',
+        option1_desc: 'Transfer me the money and I\'ll take care of everything!',
+        bank_info: 'Bank details:',
+        account_name: 'Account holder:',
+        option1_note: '💡 Include the item name in the transfer reference',
+        option2_title: '📦 You order directly',
+        option2_desc: 'Order from the website and ship here:',
+        delivery_info: 'Delivery address:',
+        name: 'Name:',
+        address: 'Address:',
+        city: 'City:',
+        phone: 'Phone:',
+        option2_note: '💡 Use the link provided on each item',
         price: 'Price',
         link: 'Link',
         view: 'View',
         reserve: 'Reserve',
         name_placeholder: 'Your first name',
+        email_placeholder: 'Your email',
+        payment_method: 'How will you proceed?',
+        option_bank: '🏦 You transfer me the money',
+        option_direct: '📦 I order directly',
         message_placeholder: 'Short message (optional)',
         confirm: 'Confirm reservation',
         cancel: 'Cancel',
@@ -240,6 +730,7 @@
       visible.forEach(item => {
         const node = tpl.content.cloneNode(true);
         const card = node.querySelector('.card');
+        const image = node.querySelector('.item-image');
         const title = node.querySelector('.title');
         const prixp = node.querySelector('.prixp');
         const prix = node.querySelector('.prix');
@@ -252,10 +743,19 @@
         // Traduire les éléments du template cloné
         translateElement(card);
 
+        // Afficher l'image si elle existe
+        if (item.image) {
+          image.src = item.image;
+          image.alt = item.label;
+          image.classList.remove('hidden');
+        }
+
         title.textContent = item.label;
         
         if (item.prix) {
-          prix.textContent = item.prix;
+          // Ajoute le symbole € si absent
+          const prixText = item.prix.toString();
+          prix.textContent = prixText.includes('€') ? prixText : prixText + ' €';
           prixp.classList.remove('hidden');
         }
         
@@ -266,6 +766,7 @@
 
         form.item_id.value = item.id;
         form.item_label.value = item.label;
+        form.querySelector('.user-lang').value = currentLang;
 
         btn.addEventListener('click', () => {
           btn.classList.add('hidden');
@@ -294,7 +795,10 @@
           formData.append('item_id', data.item_id);
           formData.append('item_label', data.item_label);
           formData.append('name', data.name);
+          formData.append('email', data.email);
+          formData.append('payment_option', data.payment_option);
           formData.append('message', data.message || '');
+          formData.append('lang', data.lang || 'fr');
 
           // On évite tout header custom → pas de pré-vol CORS
           try {
