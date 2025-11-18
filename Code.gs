@@ -1,6 +1,7 @@
 const SHEET_ID = '1swwM4nYI4Icjz4DKeT3pW2sfU-6xlBIYAmvv8PFyoMA';
 const RESERVATIONS_SHEET = 'Reservations';
 const ITEMS_SHEET = 'List'; // feuille contenant la liste des objets
+const CONFIG_SHEET = 'Config'; // feuille contenant vos coordonnées
 const NOTIFY_EMAIL = 'rivollier.s@gmail.com'; // où recevoir les mails
 
 function _reservationsSheet() {
@@ -20,6 +21,58 @@ function _itemsSheet() {
   const ss = SpreadsheetApp.openById(SHEET_ID);
   const sheet = ss.getSheetByName(ITEMS_SHEET);
   return sheet;
+}
+
+function _configSheet() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  let sheet = ss.getSheetByName(CONFIG_SHEET);
+  
+  // Créer la feuille si elle n'existe pas
+  if (!sheet) {
+    sheet = ss.insertSheet(CONFIG_SHEET);
+    // En-têtes dans la colonne A, valeurs dans la colonne B
+    sheet.appendRow(['Paramètre', 'Valeur']);
+    sheet.appendRow(['IBAN', 'FR00 0000 0000 0000 0000 0000 000']);
+    sheet.appendRow(['Titulaire', 'Votre Nom']);
+    sheet.appendRow(['Nom livraison', 'Prénom NOM']);
+    sheet.appendRow(['Adresse livraison', '123 Rue Exemple']);
+    sheet.appendRow(['Ville livraison', '75000 Paris']);
+    sheet.appendRow(['Téléphone livraison', '06 12 34 56 78']);
+    
+    // Formater l'en-tête
+    sheet.getRange('A1:B1').setFontWeight('bold').setBackground('#4A90E2').setFontColor('#FFFFFF');
+    sheet.setColumnWidth(1, 200);
+    sheet.setColumnWidth(2, 400);
+  }
+  
+  return sheet;
+}
+
+/**
+ * Lit les coordonnées depuis la feuille Config
+ */
+function _getConfig() {
+  const sheet = _configSheet();
+  const data = sheet.getDataRange().getValues();
+  
+  const config = {};
+  // Parcourir les lignes (ignorer l'en-tête)
+  for (let i = 1; i < data.length; i++) {
+    const key = data[i][0]; // Colonne A
+    const value = data[i][1]; // Colonne B
+    if (key) {
+      config[key] = value || '';
+    }
+  }
+  
+  return {
+    iban: config['IBAN'] || '',
+    titulaire: config['Titulaire'] || '',
+    nomLivraison: config['Nom livraison'] || '',
+    adresseLivraison: config['Adresse livraison'] || '',
+    villeLivraison: config['Ville livraison'] || '',
+    telephoneLivraison: config['Téléphone livraison'] || ''
+  };
 }
 
 // Fonction pour lire tous les objets de la feuille "list"
@@ -199,6 +252,9 @@ function _jsonResponse(obj, code = 200) {
  * Génère l'email de confirmation dans la langue appropriée
  */
 function _getGuestEmail(name, itemLabel, lang, itemPrice, itemUrl) {
+  // Lire les coordonnées depuis la feuille Config
+  const config = _getConfig();
+  
   // Préparer les infos du produit
   const priceInfo = itemPrice ? `\n   💰 Prix indicatif : ${itemPrice}` : '';
   const urlInfo = itemUrl ? `\n   🔗 Lien : ${itemUrl}` : '';
@@ -217,8 +273,8 @@ function _getGuestEmail(name, itemLabel, lang, itemPrice, itemUrl) {
         `🏦 OPTION 1 : JE COMMANDE POUR VOUS\n` +
         `   └─ Transférez-moi l'argent et je m'occupe de tout !\n\n` +
         `   💳 Coordonnées bancaires :\n` +
-        `      IBAN : FR00 0000 0000 0000 0000 0000 000\n` +
-        `      Titulaire : Votre Nom\n` +
+        `      IBAN : ${config.iban}\n` +
+        `      Titulaire : ${config.titulaire}\n` +
         (itemPrice ? `   💰 Montant : ${itemPrice}\n` : '') +
         `   💡 Pensez à indiquer "${itemLabel}" dans le libellé\n\n` +
         
@@ -226,10 +282,10 @@ function _getGuestEmail(name, itemLabel, lang, itemPrice, itemUrl) {
         `   └─ Commandez sur le site et faites livrer ici :\n\n` +
         (itemUrl ? `   🔗 Lien du produit : ${itemUrl}\n\n` : '') +
         `   📍 Adresse de livraison :\n` +
-        `      Nom : Prénom NOM\n` +
-        `      Adresse : 123 Rue Exemple\n` +
-        `      Ville : 75000 Paris\n` +
-        `      Téléphone : 06 12 34 56 78\n\n` +
+        `      Nom : ${config.nomLivraison}\n` +
+        `      Adresse : ${config.adresseLivraison}\n` +
+        `      Ville : ${config.villeLivraison}\n` +
+        `      Téléphone : ${config.telephoneLivraison}\n\n` +
         
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
         `Merci beaucoup pour votre cadeau ! 💕\n\n` +
@@ -249,8 +305,8 @@ function _getGuestEmail(name, itemLabel, lang, itemPrice, itemUrl) {
         `🏦 VAIHTOEHTO 1: TILAAN PUOLESTASI\n` +
         `   └─ Lähetä minulle rahat niin hoidan kaiken!\n\n` +
         `   💳 Pankkitiedot:\n` +
-        `      IBAN: FR00 0000 0000 0000 0000 0000 000\n` +
-        `      Tilinomistaja: Votre Nom\n` +
+        `      IBAN: ${config.iban}\n` +
+        `      Tilinomistaja: ${config.titulaire}\n` +
         (itemPrice ? `   💰 Summa: ${itemPrice}\n` : '') +
         `   💡 Muista merkitä "${itemLabel}" viestikenttään\n\n` +
         
@@ -258,10 +314,10 @@ function _getGuestEmail(name, itemLabel, lang, itemPrice, itemUrl) {
         `   └─ Tilaa sivustolta ja toimita tänne:\n\n` +
         (itemUrl ? `   🔗 Tuotteen linkki: ${itemUrl}\n\n` : '') +
         `   📍 Toimitusosoite:\n` +
-        `      Nimi: Prénom NOM\n` +
-        `      Osoite: 123 Rue Exemple\n` +
-        `      Kaupunki: 75000 Paris\n` +
-        `      Puhelin: 06 12 34 56 78\n\n` +
+        `      Nimi: ${config.nomLivraison}\n` +
+        `      Osoite: ${config.adresseLivraison}\n` +
+        `      Kaupunki: ${config.villeLivraison}\n` +
+        `      Puhelin: ${config.telephoneLivraison}\n\n` +
         
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
         `Kiitos paljon lahjastasi! 💕\n\n` +
@@ -281,8 +337,8 @@ function _getGuestEmail(name, itemLabel, lang, itemPrice, itemUrl) {
         `🏦 OPTION 1: I ORDER FOR YOU\n` +
         `   └─ Transfer me the money and I'll take care of everything!\n\n` +
         `   💳 Bank details:\n` +
-        `      IBAN: FR00 0000 0000 0000 0000 0000 000\n` +
-        `      Account holder: Votre Nom\n` +
+        `      IBAN: ${config.iban}\n` +
+        `      Account holder: ${config.titulaire}\n` +
         (itemPrice ? `   💰 Amount: ${itemPrice}\n` : '') +
         `   💡 Remember to include "${itemLabel}" in the reference\n\n` +
         
@@ -290,10 +346,10 @@ function _getGuestEmail(name, itemLabel, lang, itemPrice, itemUrl) {
         `   └─ Order from the website and ship here:\n\n` +
         (itemUrl ? `   🔗 Product link: ${itemUrl}\n\n` : '') +
         `   📍 Delivery address:\n` +
-        `      Name: Prénom NOM\n` +
-        `      Address: 123 Rue Exemple\n` +
-        `      City: 75000 Paris\n` +
-        `      Phone: 06 12 34 56 78\n\n` +
+        `      Name: ${config.nomLivraison}\n` +
+        `      Address: ${config.adresseLivraison}\n` +
+        `      City: ${config.villeLivraison}\n` +
+        `      Phone: ${config.telephoneLivraison}\n\n` +
         
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
         `Thank you so much for your gift! 💕\n\n` +
@@ -320,4 +376,35 @@ function resetAllReservations() {
     sheet.appendRow(['timestamp', 'item_id', 'item_label', 'name', 'email', 'payment_option', 'message']);
     Logger.log('Toutes les réservations ont été effacées.');
   }
+}
+
+/**
+ * Fonction pour initialiser ou réinitialiser la feuille Config
+ * Lancez cette fonction manuellement depuis Apps Script si nécessaire
+ */
+function initializeConfig() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  let sheet = ss.getSheetByName(CONFIG_SHEET);
+  
+  if (sheet) {
+    sheet.clear();
+  } else {
+    sheet = ss.insertSheet(CONFIG_SHEET);
+  }
+  
+  // En-têtes et valeurs par défaut
+  sheet.appendRow(['Paramètre', 'Valeur']);
+  sheet.appendRow(['IBAN', 'FR00 0000 0000 0000 0000 0000 000']);
+  sheet.appendRow(['Titulaire', 'Votre Nom']);
+  sheet.appendRow(['Nom livraison', 'Prénom NOM']);
+  sheet.appendRow(['Adresse livraison', '123 Rue Exemple']);
+  sheet.appendRow(['Ville livraison', '75000 Paris']);
+  sheet.appendRow(['Téléphone livraison', '06 12 34 56 78']);
+  
+  // Formater
+  sheet.getRange('A1:B1').setFontWeight('bold').setBackground('#4A90E2').setFontColor('#FFFFFF');
+  sheet.setColumnWidth(1, 200);
+  sheet.setColumnWidth(2, 400);
+  
+  Logger.log('Feuille Config initialisée avec succès !');
 }

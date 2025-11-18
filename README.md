@@ -76,7 +76,7 @@ const APP_URL = 'https://script.google.com/macros/s/VOTRE_ID_ICI/exec';
 
 ## 📊 Structure du Google Sheet
 
-Votre Google Sheet doit avoir 2 feuilles :
+Votre Google Sheet doit avoir 3 feuilles :
 
 ### Feuille "List" (les objets)
 | Nom | Prix | Lien | Image |
@@ -85,6 +85,20 @@ Votre Google Sheet doit avoir 2 feuilles :
 | Body bio | 20€ | https://... | https://lien-vers-image2.jpg |
 
 **Note sur les images** : Dans la colonne D (Image), mettez l'URL complète de l'image (doit commencer par `https://`). Si la cellule est vide, aucune image ne sera affichée pour cet objet.
+
+### Feuille "Config" (vos coordonnées)
+Cette feuille sera **créée automatiquement** au premier lancement. Elle contient vos coordonnées qui seront utilisées dans les emails de confirmation :
+
+| Paramètre | Valeur |
+|-----------|--------|
+| IBAN | FR00 0000 0000 0000 0000 0000 000 |
+| Titulaire | Votre Nom |
+| Nom livraison | Prénom NOM |
+| Adresse livraison | 123 Rue Exemple |
+| Ville livraison | 75000 Paris |
+| Téléphone livraison | 06 12 34 56 78 |
+
+**🔧 Personnalisation** : Modifiez les valeurs dans la colonne B pour mettre vos vraies coordonnées (IBAN finlandais, adresse en Finlande, etc.). Ces valeurs seront automatiquement utilisées dans tous les emails envoyés aux personnes qui réservent.
 
 ### Feuille "Reservations" (générée automatiquement)
 | timestamp | item_id | item_label | name | email | payment_option | message |
@@ -157,38 +171,25 @@ Google Drive bloque l'affichage direct d'images sur des sites externes (problèm
 
 ## ⚙️ Configuration de vos coordonnées
 
-### ⚠️ IMPORTANT : Remplacez vos coordonnées personnelles à DEUX endroits :
+### ✅ Simple et rapide : Tout se passe dans Google Sheets !
 
-### 1️⃣ Dans `index.html` (lignes 231-248)
+Vos coordonnées bancaires et d'adresse de livraison sont maintenant gérées **directement dans la feuille "Config"** de votre Google Sheet.
 
-Les visiteurs verront ces informations sur le site :
+**📝 Comment faire :**
+1. Ouvrez votre Google Sheet
+2. Allez dans la feuille **"Config"** (créée automatiquement au premier lancement)
+3. Modifiez les valeurs dans la **colonne B** :
+   - 🏦 **IBAN** : Votre IBAN finlandais
+   - 👤 **Titulaire** : Votre nom complet
+   - 📍 **Nom livraison** : Nom pour les livraisons
+   - 🏠 **Adresse livraison** : Votre adresse en Finlande
+   - 🌍 **Ville livraison** : Code postal + ville
+   - 📞 **Téléphone livraison** : Votre numéro de téléphone
 
-```html
-<span class="editable">FR00 0000 0000 0000 0000 0000 000</span>  <!-- Votre IBAN -->
-<span class="editable">Votre Nom</span>                          <!-- Nom du compte -->
-<span class="editable">Prénom NOM</span>                          <!-- Votre nom complet -->
-<span class="editable">123 Rue Exemple</span>                     <!-- Votre adresse -->
-<span class="editable">75000 Paris</span>                         <!-- Code postal + ville -->
-<span class="editable">06 12 34 56 78</span>                      <!-- Votre téléphone -->
-```
-
-### 2️⃣ Dans `Code.gs` (lignes 192-202, 222-232, 252-262)
-
-Ces informations seront envoyées par email automatique **dans les 3 langues**.
-
-⚠️ **IMPORTANT** : Vous devez remplacer vos coordonnées dans **CHAQUE langue** (FR, FI, EN) :
-
-**Français (lignes 192-202)**
-```javascript
-`      IBAN : FR00 0000 0000 0000 0000 0000 000\n` +      // Votre IBAN
-`      Titulaire : Votre Nom\n` +                          // Nom du compte
-`      Nom : Prénom NOM\n` +                               // Votre nom complet
-`      Adresse : 123 Rue Exemple\n` +                      // Votre adresse
-`      Ville : 75000 Paris\n` +                            // Code postal + ville
-`      Téléphone : 06 12 34 56 78\n\n` +                   // Votre téléphone
-```
-
-**Finnois (lignes 222-232)** et **Anglais (lignes 252-262)** : même chose !
+**🎉 Avantages** :
+- ✅ Modification en temps réel sans toucher au code
+- ✅ Automatiquement utilisé dans les emails (FR, FI, EN)
+- ✅ Visible sur le site web pour les visiteurs (dans `index.html`, lignes 231-248)
 
 ## 🆘 Aide
 
