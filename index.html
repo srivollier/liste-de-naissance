@@ -1033,13 +1033,17 @@
             return;
           }
 
-          // Récupérer le bouton de soumission
+          // Récupérer les boutons
           const submitBtn = form.querySelector('button[type="submit"]');
+          const cancelBtn = cancel; // Le bouton Annuler
           const originalText = submitBtn.textContent;
           
-          // Désactiver le bouton et afficher le loading
+          // Désactiver les DEUX boutons et afficher le loading
           submitBtn.disabled = true;
           submitBtn.textContent = translations[currentLang].sending;
+          cancelBtn.disabled = true;
+          cancelBtn.style.opacity = '0.5';
+          cancelBtn.style.cursor = 'not-allowed';
 
           const data = Object.fromEntries(new FormData(form).entries());
 
@@ -1076,9 +1080,12 @@
             console.error(e);
             alert(translations[currentLang].error_occurred);
             
-            // Réactiver le bouton en cas d'erreur
+            // Réactiver les DEUX boutons en cas d'erreur
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
+            cancelBtn.disabled = false;
+            cancelBtn.style.opacity = '1';
+            cancelBtn.style.cursor = 'pointer';
           }
         });
 
