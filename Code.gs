@@ -265,16 +265,14 @@ function _getGuestEmail(name, itemLabel, lang, itemPrice, itemUrl) {
     formattedPrice = formattedPrice + ' €';
   }
   
-  // Préparer les infos du produit
-  const priceInfo = formattedPrice ? `\n   💰 Prix indicatif : ${formattedPrice}` : '';
-  const urlInfo = itemUrl ? `\n   🔗 Lien : ${itemUrl}` : '';
-  
   const emails = {
     fr: {
       subject: `✅ Confirmation de réservation - ${itemLabel}`,
       body: 
         `Bonjour ${name},\n\n` +
-        `Votre réservation pour "${itemLabel}" a bien été confirmée ! 🎉${priceInfo}${urlInfo}\n\n` +
+        `Votre réservation pour "${itemLabel}" a bien été confirmée ! 🎉` +
+        (formattedPrice ? `\n   💰 Prix indicatif : ${formattedPrice}` : '') +
+        (itemUrl ? `\n   🔗 Lien : ${itemUrl}` : '') + `\n\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
         `💝 COMMENT PROCÉDER MAINTENANT ?\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
@@ -306,7 +304,9 @@ function _getGuestEmail(name, itemLabel, lang, itemPrice, itemUrl) {
       subject: `✅ Varauksen vahvistus - ${itemLabel}`,
       body:
         `Hei ${name},\n\n` +
-        `Varauksesi tuotteelle "${itemLabel}" on vahvistettu! 🎉${priceInfo}${urlInfo}\n\n` +
+        `Varauksesi tuotteelle "${itemLabel}" on vahvistettu! 🎉` +
+        (formattedPrice ? `\n   💰 Ohjeellinen hinta: ${formattedPrice}` : '') +
+        (itemUrl ? `\n   🔗 Linkki: ${itemUrl}` : '') + `\n\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
         `💝 MITEN EDETÄ NYT?\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
@@ -338,7 +338,9 @@ function _getGuestEmail(name, itemLabel, lang, itemPrice, itemUrl) {
       subject: `✅ Reservation confirmed - ${itemLabel}`,
       body:
         `Hello ${name},\n\n` +
-        `Your reservation for "${itemLabel}" has been confirmed! 🎉${priceInfo}${urlInfo}\n\n` +
+        `Your reservation for "${itemLabel}" has been confirmed! 🎉` +
+        (formattedPrice ? `\n   💰 Indicative price: ${formattedPrice}` : '') +
+        (itemUrl ? `\n   🔗 Link: ${itemUrl}` : '') + `\n\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
         `💝 HOW TO PROCEED NOW?\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
