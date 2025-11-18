@@ -150,9 +150,13 @@ function doGet(e) {
     if (id) taken.set(id, label || '');
   }
 
+  // Récupère les coordonnées depuis Config
+  const config = _getConfig();
+  
   return _jsonResponse({
     items: items,
-    reserved_ids: Array.from(taken.keys())
+    reserved_ids: Array.from(taken.keys()),
+    config: config
   });
 }
 
@@ -255,8 +259,14 @@ function _getGuestEmail(name, itemLabel, lang, itemPrice, itemUrl) {
   // Lire les coordonnées depuis la feuille Config
   const config = _getConfig();
   
+  // Formater le prix avec € si nécessaire
+  let formattedPrice = itemPrice || '';
+  if (formattedPrice && !formattedPrice.includes('€')) {
+    formattedPrice = formattedPrice + ' €';
+  }
+  
   // Préparer les infos du produit
-  const priceInfo = itemPrice ? `\n   💰 Prix indicatif : ${itemPrice}` : '';
+  const priceInfo = formattedPrice ? `\n   💰 Prix indicatif : ${formattedPrice}` : '';
   const urlInfo = itemUrl ? `\n   🔗 Lien : ${itemUrl}` : '';
   
   const emails = {
@@ -275,7 +285,7 @@ function _getGuestEmail(name, itemLabel, lang, itemPrice, itemUrl) {
         `   💳 Coordonnées bancaires :\n` +
         `      IBAN : ${config.iban}\n` +
         `      Titulaire : ${config.titulaire}\n` +
-        (itemPrice ? `   💰 Montant : ${itemPrice}\n` : '') +
+        (formattedPrice ? `   💰 Montant : ${formattedPrice}\n` : '') +
         `   💡 Pensez à indiquer "${itemLabel}" dans le libellé\n\n` +
         
         `📦 OPTION 2 : VOUS COMMANDEZ DIRECTEMENT\n` +
@@ -307,7 +317,7 @@ function _getGuestEmail(name, itemLabel, lang, itemPrice, itemUrl) {
         `   💳 Pankkitiedot:\n` +
         `      IBAN: ${config.iban}\n` +
         `      Tilinomistaja: ${config.titulaire}\n` +
-        (itemPrice ? `   💰 Summa: ${itemPrice}\n` : '') +
+        (formattedPrice ? `   💰 Summa: ${formattedPrice}\n` : '') +
         `   💡 Muista merkitä "${itemLabel}" viestikenttään\n\n` +
         
         `📦 VAIHTOEHTO 2: TILAAT SUORAAN\n` +
@@ -339,7 +349,7 @@ function _getGuestEmail(name, itemLabel, lang, itemPrice, itemUrl) {
         `   💳 Bank details:\n` +
         `      IBAN: ${config.iban}\n` +
         `      Account holder: ${config.titulaire}\n` +
-        (itemPrice ? `   💰 Amount: ${itemPrice}\n` : '') +
+        (formattedPrice ? `   💰 Amount: ${formattedPrice}\n` : '') +
         `   💡 Remember to include "${itemLabel}" in the reference\n\n` +
         
         `📦 OPTION 2: YOU ORDER DIRECTLY\n` +

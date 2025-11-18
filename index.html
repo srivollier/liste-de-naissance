@@ -553,8 +553,8 @@
           <div class="option-details">
             <p><strong data-i18n="bank_info">Coordonnées bancaires :</strong></p>
             <div class="info-box">
-              <p><strong>IBAN :</strong> <span class="editable">FR00 0000 0000 0000 0000 0000 000</span></p>
-              <p><strong data-i18n="account_name">Titulaire :</strong> <span class="editable">Votre Nom</span></p>
+              <p><strong>IBAN :</strong> <span class="editable" id="config-iban">FR00 0000 0000 0000 0000 0000 000</span></p>
+              <p><strong data-i18n="account_name">Titulaire :</strong> <span class="editable" id="config-titulaire">Votre Nom</span></p>
             </div>
             <p class="note" data-i18n="option1_note">💡 Indiquez le nom de l'objet dans le libellé du virement</p>
           </div>
@@ -567,10 +567,10 @@
           <div class="option-details">
             <p><strong data-i18n="delivery_info">Adresse de livraison :</strong></p>
             <div class="info-box">
-              <p><strong data-i18n="name">Nom :</strong> <span class="editable">Prénom NOM</span></p>
-              <p><strong data-i18n="address">Adresse :</strong> <span class="editable">123 Rue Exemple</span></p>
-              <p><strong data-i18n="city">Ville :</strong> <span class="editable">75000 Paris</span></p>
-              <p><strong data-i18n="phone">Téléphone :</strong> <span class="editable">06 12 34 56 78</span></p>
+              <p><strong data-i18n="name">Nom :</strong> <span class="editable" id="config-nom">Prénom NOM</span></p>
+              <p><strong data-i18n="address">Adresse :</strong> <span class="editable" id="config-adresse">123 Rue Exemple</span></p>
+              <p><strong data-i18n="city">Ville :</strong> <span class="editable" id="config-ville">75000 Paris</span></p>
+              <p><strong data-i18n="phone">Téléphone :</strong> <span class="editable" id="config-telephone">06 12 34 56 78</span></p>
             </div>
             <p class="note" data-i18n="option2_note">💡 Utilisez le lien fourni sur chaque objet</p>
           </div>
@@ -935,8 +935,33 @@
       const json = await r.json();
       return {
         items: json.items || [],
-        reservedIds: new Set(json.reserved_ids || [])
+        reservedIds: new Set(json.reserved_ids || []),
+        config: json.config || {}
       };
+    }
+    
+    function displayConfig(config) {
+      // Afficher les coordonnées bancaires
+      if (config.iban) {
+        document.getElementById('config-iban').textContent = config.iban;
+      }
+      if (config.titulaire) {
+        document.getElementById('config-titulaire').textContent = config.titulaire;
+      }
+      
+      // Afficher l'adresse de livraison
+      if (config.nomLivraison) {
+        document.getElementById('config-nom').textContent = config.nomLivraison;
+      }
+      if (config.adresseLivraison) {
+        document.getElementById('config-adresse').textContent = config.adresseLivraison;
+      }
+      if (config.villeLivraison) {
+        document.getElementById('config-ville').textContent = config.villeLivraison;
+      }
+      if (config.telephoneLivraison) {
+        document.getElementById('config-telephone').textContent = config.telephoneLivraison;
+      }
     }
 
     function renderItems(items, reservedSet) {
@@ -1067,7 +1092,13 @@
 
     async function loadAndRenderItems() {
       try {
-        const { items, reservedIds } = await fetchData();
+        const { items, reservedIds, config } = await fetchData();
+        
+        // Afficher les coordonnées depuis Config
+        if (config) {
+          displayConfig(config);
+        }
+        
         if (items.length === 0) {
           document.getElementById('grid').innerHTML = `<p>${translations[currentLang].no_items}</p>`;
           return;
