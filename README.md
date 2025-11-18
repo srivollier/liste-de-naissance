@@ -1,6 +1,23 @@
 # 👶 Liste de Naissance / Vauvalahjalista / Baby Registry
 
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
 Une liste de naissance interactive multilingue (Français, Suomi, English) utilisant Google Sheets comme backend.
+
+## 📄 Licence
+
+Ce projet est sous licence **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International** (CC BY-NC-SA 4.0).
+
+✅ Vous pouvez :
+- Partager et redistribuer le code
+- Modifier et créer des dérivés
+
+❌ Sous conditions :
+- **Attribution** : Vous devez créditer l'auteur original
+- **Pas d'usage commercial** : Vous ne pouvez pas utiliser ce projet à des fins commerciales
+- **Partage à l'identique** : Les modifications doivent utiliser la même licence
+
+Pour plus de détails, consultez le fichier [LICENSE](LICENSE) ou visitez [creativecommons.org](https://creativecommons.org/licenses/by-nc-sa/4.0/).
 
 ## 🌐 Démo en ligne
 
