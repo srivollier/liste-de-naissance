@@ -614,6 +614,8 @@
           </div>
           <input type="hidden" name="item_id" />
           <input type="hidden" name="item_label" />
+          <input type="hidden" name="item_price" />
+          <input type="hidden" name="item_url" />
           <input type="hidden" name="lang" class="user-lang" />
           <!-- champ anti-bot discret (honeypot) -->
           <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off" />
@@ -982,6 +984,8 @@
 
         form.item_id.value = item.id;
         form.item_label.value = item.label;
+        form.item_price.value = item.prix || '';
+        form.item_url.value = item.url || '';
         form.querySelector('.user-lang').value = currentLang;
 
         btn.addEventListener('click', () => {
@@ -1018,6 +1022,8 @@
           const formData = new URLSearchParams();
           formData.append('item_id', data.item_id);
           formData.append('item_label', data.item_label);
+          formData.append('item_price', data.item_price || '');
+          formData.append('item_url', data.item_url || '');
           formData.append('name', data.name);
           formData.append('email', data.email);
           formData.append('payment_option', data.payment_option);

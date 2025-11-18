@@ -120,11 +120,13 @@ function doPost(e) {
         email: params.email,
         payment_option: params.payment_option,
         message: params.message,
-        lang: params.lang || 'fr'
+        lang: params.lang || 'fr',
+        item_price: params.item_price,
+        item_url: params.item_url
       };
     }
 
-    const { item_id, item_label, name, email, payment_option, message, lang } = payload;
+    const { item_id, item_label, name, email, payment_option, message, lang, item_price, item_url } = payload;
     if (!item_id || !name || !email) {
       return _jsonResponse({ ok: false, error: 'item_id, name et email requis' }, 400);
     }
@@ -173,7 +175,7 @@ function doPost(e) {
     MailApp.sendEmail(NOTIFY_EMAIL, subjectOwner, bodyOwner);
     
     // Email récapitulatif pour la personne qui réserve (multilingue)
-    const guestEmail = _getGuestEmail(name, item_label || item_id, lang);
+    const guestEmail = _getGuestEmail(name, item_label || item_id, lang, item_price, item_url);
     
     try {
       MailApp.sendEmail(email, guestEmail.subject, guestEmail.body);
@@ -196,13 +198,17 @@ function _jsonResponse(obj, code = 200) {
 /**
  * Génère l'email de confirmation dans la langue appropriée
  */
-function _getGuestEmail(name, itemLabel, lang) {
+function _getGuestEmail(name, itemLabel, lang, itemPrice, itemUrl) {
+  // Préparer les infos du produit
+  const priceInfo = itemPrice ? `\n   💰 Prix indicatif : ${itemPrice}` : '';
+  const urlInfo = itemUrl ? `\n   🔗 Lien : ${itemUrl}` : '';
+  
   const emails = {
     fr: {
       subject: `✅ Confirmation de réservation - ${itemLabel}`,
       body: 
         `Bonjour ${name},\n\n` +
-        `Votre réservation pour "${itemLabel}" a bien été confirmée ! 🎉\n\n` +
+        `Votre réservation pour "${itemLabel}" a bien été confirmée ! 🎉${priceInfo}${urlInfo}\n\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
         `💝 COMMENT PROCÉDER MAINTENANT ?\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
@@ -213,10 +219,12 @@ function _getGuestEmail(name, itemLabel, lang) {
         `   💳 Coordonnées bancaires :\n` +
         `      IBAN : FR00 0000 0000 0000 0000 0000 000\n` +
         `      Titulaire : Votre Nom\n` +
+        (itemPrice ? `   💰 Montant : ${itemPrice}\n` : '') +
         `   💡 Pensez à indiquer "${itemLabel}" dans le libellé\n\n` +
         
         `📦 OPTION 2 : VOUS COMMANDEZ DIRECTEMENT\n` +
         `   └─ Commandez sur le site et faites livrer ici :\n\n` +
+        (itemUrl ? `   🔗 Lien du produit : ${itemUrl}\n\n` : '') +
         `   📍 Adresse de livraison :\n` +
         `      Nom : Prénom NOM\n` +
         `      Adresse : 123 Rue Exemple\n` +
@@ -232,7 +240,7 @@ function _getGuestEmail(name, itemLabel, lang) {
       subject: `✅ Varauksen vahvistus - ${itemLabel}`,
       body:
         `Hei ${name},\n\n` +
-        `Varauksesi tuotteelle "${itemLabel}" on vahvistettu! 🎉\n\n` +
+        `Varauksesi tuotteelle "${itemLabel}" on vahvistettu! 🎉${priceInfo}${urlInfo}\n\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
         `💝 MITEN EDETÄ NYT?\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
@@ -243,10 +251,12 @@ function _getGuestEmail(name, itemLabel, lang) {
         `   💳 Pankkitiedot:\n` +
         `      IBAN: FR00 0000 0000 0000 0000 0000 000\n` +
         `      Tilinomistaja: Votre Nom\n` +
+        (itemPrice ? `   💰 Summa: ${itemPrice}\n` : '') +
         `   💡 Muista merkitä "${itemLabel}" viestikenttään\n\n` +
         
         `📦 VAIHTOEHTO 2: TILAAT SUORAAN\n` +
         `   └─ Tilaa sivustolta ja toimita tänne:\n\n` +
+        (itemUrl ? `   🔗 Tuotteen linkki: ${itemUrl}\n\n` : '') +
         `   📍 Toimitusosoite:\n` +
         `      Nimi: Prénom NOM\n` +
         `      Osoite: 123 Rue Exemple\n` +
@@ -262,7 +272,7 @@ function _getGuestEmail(name, itemLabel, lang) {
       subject: `✅ Reservation confirmed - ${itemLabel}`,
       body:
         `Hello ${name},\n\n` +
-        `Your reservation for "${itemLabel}" has been confirmed! 🎉\n\n` +
+        `Your reservation for "${itemLabel}" has been confirmed! 🎉${priceInfo}${urlInfo}\n\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
         `💝 HOW TO PROCEED NOW?\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
@@ -273,10 +283,12 @@ function _getGuestEmail(name, itemLabel, lang) {
         `   💳 Bank details:\n` +
         `      IBAN: FR00 0000 0000 0000 0000 0000 000\n` +
         `      Account holder: Votre Nom\n` +
+        (itemPrice ? `   💰 Amount: ${itemPrice}\n` : '') +
         `   💡 Remember to include "${itemLabel}" in the reference\n\n` +
         
         `📦 OPTION 2: YOU ORDER DIRECTLY\n` +
         `   └─ Order from the website and ship here:\n\n` +
+        (itemUrl ? `   🔗 Product link: ${itemUrl}\n\n` : '') +
         `   📍 Delivery address:\n` +
         `      Name: Prénom NOM\n` +
         `      Address: 123 Rue Exemple\n` +
